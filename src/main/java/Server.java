@@ -10,16 +10,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class Server {
-    public final int SERVERSOCKET;
-    public final int threadPoolSize = 64;
+    private final int Socket;
+    private final int threadPoolSize = 64;
     ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
 
     public Server(int threadPoolSize, int serverSocket) {
-        SERVERSOCKET = serverSocket;
+        Socket = serverSocket;
     }
 
     public void start() throws InterruptedException {
-        try (final var serverSocket = new ServerSocket(SERVERSOCKET)) {
+        try (final var serverSocket = new ServerSocket(Socket)) {
             while (!serverSocket.isClosed()) {
                 Socket socket = serverSocket.accept();
                 executor.execute(() -> processingOfConnection(socket));
