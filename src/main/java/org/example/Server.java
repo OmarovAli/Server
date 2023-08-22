@@ -34,7 +34,7 @@ public class Server {
         }
     }
 
-    private void proceedConnection(Socket socket) {
+    private void processingOfConnection(Socket socket) {
         try (final var in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
              final var out = new BufferedOutputStream(socket.getOutputStream())) {
             // read only request line for simplicity //строка запроса только для чтения, для простоты
