@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -53,13 +55,19 @@ public class Server {
             Request request = new Request(method, path);
 
             if (request == null) {
-                connectionResponse(out, "404", "Not found");
+                connectionResponseUnCorrect(out, "404", "Not found");
+            } else {
+                connectionResponseCorrect(out, path);
             }
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+
     }
-    protected void connectionResponse(BufferedOutputStream out, String responseCode, String responseStatus) throws IOException {
+
+    protected void connectionResponseUnCorrect(BufferedOutputStream out, String responseCode, String responseStatus) throws IOException {
         out.write((
                 "HTTP/1.1 " + responseCode + " " + responseStatus + "\r\n" +
                         "Content-Length: 0\r\n" +
@@ -68,5 +76,19 @@ public class Server {
         ).getBytes());
         out.flush();
     }
+    protected void connectionResponseCorrect(BufferedOutputStream out, String path) throws IOException {
+        final var filePath = Path.of(".", "public", path);
+        final var mimeType = Files.probeContentType(filePath);
 
+        final var length = Files.size(filePath);
+        out.write((
+                "HTTP/1.1 200 OK\r\n" +
+                        "Content-Type: " + mimeType + "\r\n" +
+                        "Content-Length: " + length + "\r\n" +
+                        "Connection: close\r\n" +
+                        "\r\n"
+        ).getBytes());
+        Files.copy(filePath, out);
+        out.flush();
+    }
 }
